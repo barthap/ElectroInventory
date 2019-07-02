@@ -1,0 +1,39 @@
+server:
+  port: 8081
+  use-forward-headers: true
+  tomcat:
+    protocol-header-https-value: https
+    protocol-header: X-Forwarded-Proto
+    port-header: X-Forwarded-Port
+  servlet:
+    context-path: /api
+
+security:
+  username: apiuser
+  password: apipass
+
+client:
+  origin: https://your.domain.tld
+
+spring:
+  application:
+    name: inventory-api
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+        default-page-size: 50
+  datasource:
+    url: jdbc:mysql://mysql_container:3306/db_name?useUnicode=yes&characterEncoding=UTF-8
+    username: db_user
+    password: db_pass
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+logging:
+  level:
+    web: DEBUG
+    sql: DEBUG
+    com.hapex.inventory: DEBUG

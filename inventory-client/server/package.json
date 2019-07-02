@@ -1,0 +1,16 @@
+{
+  "name": "node-react-docker-server",
+  "version": "1.0.0",
+  "description": "A reference for running a node server and create-react-app app via docker-compose.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Barthap",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.2",
+    "http-proxy": "^1.17.0"
+  }
+}

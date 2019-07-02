@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://80.211.244.35:3306/db_inventory
+    username: inventory_user
+    password: 1nv3nt0ry
+    initialization-mode: never  # do not use data.sql
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true

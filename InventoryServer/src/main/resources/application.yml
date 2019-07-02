@@ -1,0 +1,51 @@
+server:
+  # listen on port 8081 and path /api
+  port: 8081
+  servlet:
+    context-path: /api
+
+  # some CORS config
+  use-forward-headers: true
+  tomcat:
+    protocol-header-https-value: https
+    protocol-header: X-Forwarded-Proto
+    port-header: X-Forwarded-Port
+
+
+# for HTTP Basic auth
+security:
+  username: demo
+  password: demo
+
+# CORS configuration in case of API is on different host than client
+client:
+  origin: http://localhost:3000
+
+
+spring:
+  application:
+    name: inventory-api
+  data:
+    web:
+      # Page numbers starting from 1, and 50 items per page
+      # get first 50 items: GET /api/items?page=1&size=50
+      pageable:
+        one-indexed-parameters: true
+        default-page-size: 50
+
+  datasource:
+    url: jdbc:h2:mem:test
+    initialization-mode: embedded # this causes data.sql is loaded only with embedded h2 db
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate.dialect: org.hibernate.dialect.H2Dialect
+
+# some debug logs - sometimes useful
+logging:
+  level:
+    web: DEBUG
+    sql: DEBUG
+    com.hapex.inventory: DEBUG

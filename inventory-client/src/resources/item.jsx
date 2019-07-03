@@ -3,6 +3,7 @@ import { List, Datagrid, TextField, UrlField, Edit, SimpleForm, Create,
     DisabledInput, TextInput, LongTextInput, NumberInput, NumberField,
     EditButton, DeleteButton, Show, SimpleShowLayout, ReferenceField, ReferenceInput,
     Filter, SelectInput, Toolbar, SaveButton, CloneButton} from 'react-admin';
+import MyUrlField from "../ui/MyUrlField";
 
 const ItemTitle = ({record}) => {
     return <span>Element: {record ? `${record.name}` : ''}</span>
@@ -17,6 +18,7 @@ const ItemFilter = props => (
     </Filter>
 );
 
+
 export const ItemList = props => (
     <List {...props} filters={<ItemFilter/>} sort={{field: 'name', order: 'ASC'}}>
         <Datagrid rowClick="show">
@@ -26,7 +28,7 @@ export const ItemList = props => (
                 <TextField source="name"/>
             </ReferenceField>
             <NumberField source="quantity"/>
-            <UrlField source="website"/>
+            <MyUrlField source="website"/>
             <CloneButton/>
             <EditButton/>
             <DeleteButton/>

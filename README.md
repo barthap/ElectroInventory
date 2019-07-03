@@ -6,15 +6,15 @@ Electro inventory is ~~an andvanced solution~~ just another CRUD app for electro
 database.
 
 Its purpose is to help deal with dozens/thousands of little
-electronic elements laying everywhere. Sometimes I couldn't find nessesary element or, on the other side, I bought some transistors/IC's again and again
-because I didn't know I already have them somewhere. Having their location and some basic parameters saved in database I can easily find out if I need to buy electronic stuff or if I already have needed elements hidden somewhere.
+electronic components laying everywhere. Sometimes I couldn't find nessesary components or, on the other side, I bought some transistors/IC's again and again
+because I didn't know I already have them somewhere. Having their location and some basic parameters saved in database I can easily find out if I need to buy electronic stuff or if I already have needed components hidden somewhere.
 
 ## Features
-* Manage items - each has _category_, _name_, _quantity_, _description_ and _website_.
+* Manage items (components) - each has _category_, _name_, _quantity_, _description_ and _website_.
 * Manage categories and subcategories.
 * Simple and friendly UI.
 
-TODO: some screen
+![Demo screenshot](/demo1.PNG)
 
 ## Table of contents
 * [Technical stack](#technical-stack)
@@ -58,7 +58,7 @@ Detailed info can be found below.
 ## How to run locally
 The app is ready to run in development mode, locally.
 
-> Here is shown how to start the application on local machine, without Docker. To see Docker configuration, see TODO1!!!!!!!!!!!!!!!!!!!!!1111***oneonenone
+> Here is shown how to start the application on local machine, without Docker. To see Docker configuration, see [Docker configuration](#docker-configuration) and [Deployment to Docker](#deploying-to-docker-server)
 
 Firstly, clone the app
 ```
@@ -329,6 +329,7 @@ docker-compose logs servicew_name
 
 ## Roadmap
 * Add location management
+* Categories displayed as a tree
 * Unify configuration
 * Improve Docker image building
 * Automate Docker deployment

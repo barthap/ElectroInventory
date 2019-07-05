@@ -43,7 +43,7 @@ public class CategoryControllerTests {
     public void deleteCategoryTest() throws Exception {
         Mockito.doNothing().when(service).deleteById(anyLong());
 
-        mvc.perform(delete("/categories/" + randId()))
+        mvc.perform(delete("/v1/categories/" + randId()))
                 .andExpect(status().isNoContent());
     }
 
@@ -51,7 +51,7 @@ public class CategoryControllerTests {
     public void deleteCategoryHavingChildrenTest() throws Exception {
         doThrow(new ConflictException("")).when(service).deleteById(anyLong());
 
-        mvc.perform(delete("/categories/" + randId()))
+        mvc.perform(delete("/v1/categories/" + randId()))
                 .andExpect(status().isConflict());
     }
 }

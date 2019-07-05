@@ -28,6 +28,9 @@ public class Item {
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
 
+    @ManyToOne
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    private Location location;
 
     public Item() {}
     public Item(String name) {

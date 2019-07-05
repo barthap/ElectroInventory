@@ -55,6 +55,9 @@ export const CategoryEdit = props => (
         <SimpleForm>
             <DisabledInput source="id" />
             <TextInput source="name" />
+            <ReferenceInput source="parent.id" reference="categories" allowEmpty>
+                <SelectInput optionText="name" />
+            </ReferenceInput>
         </SimpleForm>
     </Edit>
 );

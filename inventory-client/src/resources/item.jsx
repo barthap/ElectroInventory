@@ -2,8 +2,11 @@ import React from 'react';
 import { List, Datagrid, TextField, UrlField, Edit, SimpleForm, Create,
     DisabledInput, TextInput, LongTextInput, NumberInput, NumberField,
     EditButton, DeleteButton, Show, SimpleShowLayout, ReferenceField, ReferenceInput,
-    Filter, SelectInput, Toolbar, SaveButton, CloneButton} from 'react-admin';
+    Filter, SelectInput, Toolbar, SaveButton, CloneButton, FunctionField} from 'react-admin';
 import MyUrlField from "../ui/MyUrlField";
+
+import get from 'lodash/get';
+const BoldTextField = ({ source, record = {} }) => <span><b>{get(record, source)}</b></span>;
 
 const ItemTitle = ({record}) => {
     return <span>Element: {record ? `${record.name}` : ''}</span>
@@ -18,17 +21,42 @@ const ItemFilter = props => (
     </Filter>
 );
 
+const DESC_LENGTH = 50;
+const ShortDesc = record => {
+    if(record.description.length < DESC_LENGTH)
+        return record.description;
+    else
+        return record.description.substr(0,DESC_LENGTH) + "...";
+};
+
+
+
+const ItemExpand = props => (
+    <Show {...props} title="">
+        <SimpleShowLayout>
+            <TextField source="description"/>
+            <ReferenceField source="location.id" reference="locations" label="Location" linkType="show" allowEmpty>
+                <TextField source="fullName"/>
+            </ReferenceField>
+            <MyUrlField source="website"/>
+            <NumberField source="quantity"/>
+            <TextField source="id"/>
+        </SimpleShowLayout>
+    </Show>
+);
 
 export const ItemList = props => (
     <List {...props} filters={<ItemFilter/>} sort={{field: 'name', order: 'ASC'}}>
-        <Datagrid rowClick="show">
-            <TextField source="id"/>
-            <TextField source="name"/>
+        <Datagrid expand={<ItemExpand/>} rowClick="expand">
+
+            <BoldTextField source="name"/>
             <ReferenceField source="category.id" reference="categories" label="Category" linkType="show" allowEmpty>
                 <TextField source="name"/>
             </ReferenceField>
-            <NumberField source="quantity"/>
-            <MyUrlField source="website"/>
+            <FunctionField label="Description" render={ShortDesc} />
+            <ReferenceField source="location.id" reference="locations" label="Location" linkType="show" allowEmpty>
+                <TextField source="name"/>
+            </ReferenceField>
             <CloneButton/>
             <EditButton/>
             <DeleteButton/>
@@ -42,6 +70,9 @@ export const ItemShow = props => (
             <TextField source="name"/>
             <ReferenceField source="category.id" reference="categories" label="Category" linkType="show">
                 <TextField source="name"/>
+            </ReferenceField>
+            <ReferenceField source="location.id" reference="locations" label="Location" linkType="show" allowEmpty>
+                <TextField source="fullName"/>
             </ReferenceField>
             <NumberField source="quantity"/>
             <UrlField source="website"/>
@@ -59,8 +90,8 @@ const ItemCreateToolbar = props => (
             submitOnEnter={true}
         />
         <SaveButton
-            label="Save and show"
-            redirect="show"
+            label="Save and exit"
+            redirect="list"
             submitOnEnter={false}
             variant="flat"
         />

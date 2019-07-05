@@ -9,14 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemDTO {
+public class LocationDTO {
     private String name;
-    private String description;
-    private int quantity;
-    private String website;
-
     private Long id;
-    private Long categoryId;
-    private Long locationId;
-
+    private Long parentId;
 }

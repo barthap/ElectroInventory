@@ -49,3 +49,8 @@ logging:
     web: DEBUG
     sql: DEBUG
     com.hapex.inventory: DEBUG
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

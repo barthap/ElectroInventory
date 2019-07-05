@@ -6,18 +6,16 @@ import com.hapex.inventory.utils.InvalidValueException;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@Slf4j
 @Getter
 @Setter
 @Entity
-@Table(name = "Categories")
-public class Category {
+@Table(name = "Locations")
+public class Location {
     @Id
     @GeneratedValue
     private Long id;
@@ -26,28 +24,28 @@ public class Category {
 
     @ManyToOne
     @JoinColumn(name = "parent_id", referencedColumnName = "id")
-    private Category parent;
+    private Location parent;
 
     @JsonIgnore
     @OneToMany(mappedBy = "parent")
-    private Set<Category> subcategories = new HashSet<>();
+    private Set<Location> children = new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "location")
     private Set<Item> items = new HashSet<>();
 
-    public void addSubcategory(Category subcategory) {
+    public void addChildLocation(Location subcategory) {
         subcategory.setParent(this);
-        this.subcategories.add(subcategory);
+        this.children.add(subcategory);
     }
 
-    public void removeSubcategory(Category subcategory) {
-        this.subcategories.remove(subcategory);
+    public void removeChildLocation(Location subcategory) {
+        this.children.remove(subcategory);
         subcategory.setParent(null);
     }
 
     public boolean hasChildren() {
-        return !getSubcategories().isEmpty();
+        return !getChildren().isEmpty();
     }
 
     public boolean hasItems() {
@@ -61,13 +59,20 @@ public class Category {
         this.name = name;
     }
 
-    public Category() {}
-    public Category(String name) { setName(name); }
+    @JsonGetter("fullName")
+    public String getFullName() {
+        if(this.parent == null)
+            return name;
+        else
+            return this.parent.getFullName() + " - " + this.name;
+    }
+
+    public Location() {}
+    public Location(String name) { setName(name); }
 
     @PreRemove
     public void preRemove() {
-        log.debug("Detaching items from category, count: " + items.size());
-        items.forEach(item -> item.setCategory(null));
+        items.forEach(item -> item.setLocation(null));
     }
 
     @Override
@@ -75,9 +80,9 @@ public class Category {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Category category = (Category) o;
+        Location location = (Location) o;
 
-        return id.equals(category.id);
+        return id.equals(location.id);
     }
 
     @Override

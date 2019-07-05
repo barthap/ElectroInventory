@@ -71,10 +71,12 @@ public class CategoryService {
             if(category.getParent() != null)
                 category.getParent().removeSubcategory(category);
 
-            Category newParent = repository.findById(dto.getParentId())
-                    .orElseThrow(() -> throwNotFound(dto.getParentId()));
+            if(dto.getParentId() > 0) {
+                Category newParent = repository.findById(dto.getParentId())
+                        .orElseThrow(() -> throwNotFound(dto.getParentId()));
 
-            newParent.addSubcategory(category);
+                newParent.addSubcategory(category);
+            }
         }
 
         return repository.save(category);
@@ -86,11 +88,12 @@ public class CategoryService {
             throw new ConflictException("Cannot delete category (id="+id+")! Remove subcategories first!");
         }
 
-        if(category.hasItems()) {
+        //This is not needed anymore, Hibernate does it for us, see Category.preRemove()
+       /* if(category.hasItems()) {
             for (Item it: category.getItems()) {
                 it.setCategory(null);
             }
-        }
+        }*/
         repository.delete(category);
     }
 

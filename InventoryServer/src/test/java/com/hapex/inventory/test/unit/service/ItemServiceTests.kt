@@ -3,7 +3,9 @@ package com.hapex.inventory.test.unit.service
 import com.hapex.inventory.data.entity.Item
 import com.hapex.inventory.data.repository.CategoryRepository
 import com.hapex.inventory.data.repository.ItemRepository
+import com.hapex.inventory.service.CategoryService
 import com.hapex.inventory.service.ItemService
+import com.hapex.inventory.service.LocationService
 import com.hapex.inventory.test.utils.TestUtils.randId
 import com.hapex.inventory.utils.ResourceNotFoundException
 import org.assertj.core.api.Assertions.assertThat
@@ -21,13 +23,14 @@ import java.util.*
 @RunWith(MockitoJUnitRunner::class)
 class ItemServiceTests {
     @Mock private lateinit var repository: ItemRepository
-    @Mock private lateinit var categoryRepository: CategoryRepository
+    @Mock private lateinit var categoryService: CategoryService
+    @Mock private lateinit var locationService: LocationService
 
     private lateinit var service: ItemService
 
     @Before
     fun setUp() {
-        service = ItemService(repository, categoryRepository)
+        service = ItemService(repository, categoryService, locationService)
     }
 
     @Test

@@ -117,8 +117,21 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
             }
             case UPDATE:
                 if(resource === 'items') {
-                    params.data.categoryId = params.data.category.id;
+                    const cid = params.data.category.id;
+                    params.data.categoryId = (cid != null && cid !== "") ? cid : 0;
+
+                    const lid = params.data.location.id;
+                    params.data.locationId = (lid != null && lid !== "") ? lid : 0;
                 }
+
+                if(resource === 'categories')
+                    params.data.parentId = params.data.parent.id;
+                if(resource === 'locations')
+                    params.data.parentId = params.data.parent_id;
+
+                if(params.data.parentId === null)
+                    params.data.parentId = 0;
+
                 url = `${apiUrl}/${resource}/${params.id}`;
                 options.method = 'PUT';
                 options.body = JSON.stringify(params.data);
@@ -147,6 +160,7 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
      */
     const convertHTTPResponse = (response, type, resource, params) => {
         const { headers, json } = response;
+        let data = json;
 
         switch (type) {
             case GET_LIST:
@@ -156,8 +170,17 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
                         'The X-Total-Count header is missing in the HTTP Response. The simple REST data provider expects responses for lists of resources to contain this header with the total number of results to build the pagination. If you are using CORS, did you declare Content-Range in the Access-Control-Expose-Headers header?'
                     );
                 }
+                if(resource === 'locations' || resource === 'categories') {
+                    data = json.map(r => {
+                        if (r.parent) return {...r, parent_id: r.parent.id };
+                        else return r;
+                    });
+                }
+
+                console.log(data);
+
                 return {
-                    data: json,
+                    data: data,
                     total: parseInt(
                         headers
                             .get('x-total-count')

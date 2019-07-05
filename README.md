@@ -58,7 +58,7 @@ Detailed info can be found below.
 ## How to run locally
 The app is ready to run in development mode, locally.
 
-> Here is shown how to start the application on local machine, without Docker. To see Docker configuration, see [Docker configuration](#docker-configuration) and [Deployment to Docker](#deploying-to-docker-server)
+> This section shows how to start the application on local machine, without Docker. To see Docker configuration, see [Docker configuration](#docker-configuration) and [Deployment to Docker](#deploying-to-docker-server)
 
 Firstly, clone the app
 ```
@@ -98,7 +98,7 @@ This will compile and then start API server at `http://localhost:8081/api` by de
 
 ## Client details and configuration
 Client a React app based on [react-admin](https://marmelab.com/react-admin/index.html). I've decided to use this tool because it mostly suits my needs
-and has many features out of the box, e.g. pagination, filtering, CRUD forms and displays. It became much easier to do nice user interface using react-admin
+and has many features out of the box, e.g. pagination, filtering, CRUD forms and displays. It became much easier to create nice user interface using react-admin
 than writing everything myself.
 
 ### File structure of `inventory-client`

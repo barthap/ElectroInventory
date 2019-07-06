@@ -37,7 +37,7 @@ if not exist InventoryServer\target\inventory*.jar (
 
 
 
-xcopy InventoryServer\target\*.jar deploy\InventoryServer /I/Y/R/H
+xcopy InventoryServer\target\*.jar deploy\InventoryServer\target /I/Y/R/H
 
 xcopy InventoryServer\Dockerfile deploy\InventoryServer /I/Y/R/H
 xcopy config\*.* deploy\config /I/Y/R/H/E

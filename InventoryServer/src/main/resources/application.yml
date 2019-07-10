@@ -14,8 +14,8 @@ server:
 
 # for HTTP Basic auth
 security:
-  username: demo
-  password: demo
+  username: apiuser
+  password: apipass
 
 # CORS configuration in case of API is on different host than client
 client:
@@ -49,8 +49,16 @@ logging:
     web: DEBUG
     sql: DEBUG
     com.hapex.inventory: DEBUG
+  file: app.log
+    max-history: 1
+  path: logs
 management:
   endpoints:
     web:
-      exposure:
-        include: '*'
+      cors:
+        allowed-origins:
+          - http://localhost:3000
+        allowed-methods:
+          - GET
+          - OPTIONS
+        allowed-headers: '*'

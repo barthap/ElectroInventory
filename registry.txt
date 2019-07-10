@@ -1,0 +1,5 @@
+registry=YOUR_REGISTRY_DOMAIN
+apiImageName=inventory-api
+clientImageName=inventory-client
+username=YOUR_REGISTRY_LOGIN
+password=YOUR_REGISTRY_PASS

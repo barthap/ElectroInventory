@@ -19,6 +19,8 @@
         <kotlin.version>1.2.71</kotlin.version>
         <querydsl.version>4.2.1</querydsl.version>
         <finalName>${project.artifactId}-${project.version}</finalName>
+        <repositoryName>inventory-api</repositoryName>
+        <tagName>${project.version}</tagName>
     </properties>
 
     <dependencies>
@@ -170,19 +172,19 @@
             </plugin>
             <plugin>
                 <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>1.2.0</version>
-
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>1.4.10</version>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <imageName>hapex/inventory-api</imageName>
-                    <dockerDirectory>docker</dockerDirectory>
-                    <resources>
-                        <resource>
-                            <targetPath>/</targetPath>
-                            <directory>${project.build.directory}</directory>
-                            <include>${project.build.finalName}.jar</include>
-                        </resource>
-                    </resources>
+                    <repository>${repositoryName}</repository>
+                    <tag>${tagName}</tag>
                     <buildArgs>
                         <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
                     </buildArgs>

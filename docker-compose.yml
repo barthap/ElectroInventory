@@ -1,10 +1,7 @@
 version: "3"
 services:
   api:
-    build:
-      context: ./InventoryServer
-      args:
-        JAR_FILE: inventory-0.1.2-SNAPSHOT.jar  # should be the same as 
+    image: inventory-api:latest
     container_name: inventory_api
     command: --spring.config.location=file:/config/application.yml  # external application.yml
     restart: always
@@ -18,6 +15,7 @@ services:
 
   client:
     build:
+      image: inventory-client:latest
       context: ./inventory-client
       args:
         EXPOSE_PORT: 4123
@@ -35,24 +33,25 @@ services:
       PANEL_USER: demo
       PANEL_PASS: demo
 
-      # used for nginx-proxy 
-      VIRTUAL_HOST: your.domain.tld
-      VIRTUAL_PORT: 4123
-      LETSENCRYPT_HOST: your.domain.tld
-      LETSENCRYPT_EMAIL: email@example.com
+      # used for nginx-proxy
+      # uncomment if you are using Nginx Proxy 
+      #VIRTUAL_HOST: your.domain.tld
+      #VIRTUAL_PORT: 4123
+      #LETSENCRYPT_HOST: your.domain.tld
+      #LETSENCRYPT_EMAIL: email@example.com
     
     # Used only when NOT using nginx-proxy
-    #ports:
-    #  - "9000:4123"
+    ports:
+      - "8080:4123"   # expose frontend at port 9000
 
     networks: 
       - internal
-      - proxy
+     # - proxy  # uncomment for Nginx Proxy
 networks:
   internal:   # connection between api and ExpressJS reverse proxy (inventory-client/server/server.js)
   mysql_conn:
     external:
       name: database-net  # to connect with external MySQL database
-  proxy:
-    external:
-      name: nginx-proxy   # to connect with external Nginx proxy service
+  #proxy:    # uncomment if you are using Nginx-Proxy
+  #  external:
+  #    name: nginx-proxy   # your proxy network name

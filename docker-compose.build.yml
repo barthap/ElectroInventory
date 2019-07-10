@@ -1,0 +1,17 @@
+# This docker-compose file overrides image settings
+# It causes Server image is built when service is starting
+# on target machine
+
+version: "3"
+services:
+  api:
+    build:
+      context: ./InventoryServer
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: inventory-0.2.0.jar  # should be the same as 
+  client:
+    build:
+      context: ./inventory-client
+      args:
+        EXPOSE_PORT: 4123

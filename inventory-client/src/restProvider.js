@@ -1,6 +1,5 @@
 import { stringify } from 'query-string';
 import {
-    fetchUtils,
     GET_LIST,
     GET_ONE,
     GET_MANY,
@@ -11,6 +10,8 @@ import {
     DELETE,
     DELETE_MANY,
 } from 'react-admin';
+
+import authorizedHttpClient from './utility/httpClient';
 
 
 const flatten = object => {
@@ -26,6 +27,9 @@ const flatten = object => {
 };
 
 
+
+
+
 /**
  * Maps react-admin queries to a simple REST API
  *
@@ -39,13 +43,17 @@ const flatten = object => {
  * CREATE       => POST http://my.api.url/posts
  * DELETE       => DELETE http://my.api.url/posts/123
  */
-export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
+export default (apiUrl, httpClient = authorizedHttpClient) => {
     /**
      * @param {String} type One of the constants appearing at the top if this file, e.g. 'UPDATE'
      * @param {String} resource Name of the resource to fetch, e.g. 'posts'
      * @param {Object} params The data request params, depending on the type
      * @returns {Object} { url, options } The HTTP request parameters
      */
+    const API_VERSION = process.env.REACT_APP_API_VERSION;
+    apiUrl = apiUrl + '/' + API_VERSION;
+
+
     const convertDataRequestToHTTP = (type, resource, params) => {
         let url = '';
         const options = {};

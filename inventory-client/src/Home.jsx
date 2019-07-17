@@ -3,6 +3,7 @@ import React from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
+import ServerStatus from "./ui/ServerStatus";
 
 export default () => (
     <Card>
@@ -10,7 +11,7 @@ export default () => (
         <CardContent>
             <p>You are running a {process.env.NODE_ENV} build of client app!</p>
             <p>Your <b>API URL</b> is {process.env.REACT_APP_API_URL}.</p>
-
+            <ServerStatus/>
         </CardContent>
     </Card>
 );

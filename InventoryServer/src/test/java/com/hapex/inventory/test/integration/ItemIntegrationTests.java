@@ -41,7 +41,7 @@ public class ItemIntegrationTests {
     public void itemListTest_shouldReturn200() throws Exception {
         createTestItem("bc547");
 
-        mvc.perform(get("/items")
+        mvc.perform(get("/v1/items")
             .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -53,14 +53,14 @@ public class ItemIntegrationTests {
     public void getItemTest_shouldReturn200() throws Exception {
         long id = createTestItem("irlz44n");
 
-        mvc.perform(get("/items/" + id).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/v1/items/" + id).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("irlz44n"));
     }
 
     @Test
     public void getUnexistingItemTest_shouldReturn404() throws Exception {
-        mvc.perform(get("/items/" + randId()).contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/v1/items/" + randId()).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -69,7 +69,7 @@ public class ItemIntegrationTests {
         ItemDTO dto = new ItemDTO();
         dto.setName("bc337");
 
-        mvc.perform(post("/items").contentType(MediaType.APPLICATION_JSON).content(asJsonString(dto)))
+        mvc.perform(post("/v1/items").contentType(MediaType.APPLICATION_JSON).content(asJsonString(dto)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.name").value("bc337"));
@@ -80,7 +80,7 @@ public class ItemIntegrationTests {
         ItemDTO dto = new ItemDTO();
         dto.setName("");
 
-        mvc.perform(post("/items").contentType(MediaType.APPLICATION_JSON).content(asJsonString(dto)))
+        mvc.perform(post("/v1/items").contentType(MediaType.APPLICATION_JSON).content(asJsonString(dto)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -91,7 +91,7 @@ public class ItemIntegrationTests {
         Item updated = new Item();
         updated.setName("uln2803A");
 
-        mvc.perform(put("/items/"+id).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/v1/items/"+id).contentType(MediaType.APPLICATION_JSON)
         .content(asJsonString(updated)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("uln2803A"));
@@ -105,7 +105,7 @@ public class ItemIntegrationTests {
         Item updated = new Item();
         updated.setName("uln2803A");
 
-        mvc.perform(put("/items/" + randId()).contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/v1/items/" + randId()).contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(updated)))
                 .andExpect(status().isNotFound());
     }
@@ -115,13 +115,13 @@ public class ItemIntegrationTests {
     public void deleteItemTest_shouldReturn204() throws Exception {
         long id = createTestItem("atmega8");
 
-        mvc.perform(delete("/items/" + id))
+        mvc.perform(delete("/v1/items/" + id))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     public void deleteUnexistingItemTest_shouldReturn404() throws Exception {
-        mvc.perform(delete("/api/items/" + randId()))
+        mvc.perform(delete("/v1/items/" + randId()))
                 .andExpect(status().isNotFound());
     }
 

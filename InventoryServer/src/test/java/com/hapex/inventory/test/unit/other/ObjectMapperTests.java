@@ -50,7 +50,7 @@ public class ObjectMapperTests {
 
     @Test
     public void itemFromDTOtest() {
-        ItemDTO dto = new ItemDTO("FFF", null, 5, null, 1L, 2L);
+        ItemDTO dto = new ItemDTO("FFF", null, 5, null, 1L, 2L, null);
 
         TypeMap<ItemDTO, Item> itemMapper = mapper.createTypeMap(ItemDTO.class, Item.class).addMappings(mapper -> {
             mapper.skip(Item::setId);
@@ -82,7 +82,7 @@ public class ObjectMapperTests {
         assertNull(item.getDescription());
         assertEquals(item.getQuantity(), 5);
 
-        ItemDTO dto = new ItemDTO(null, "desc", 2, null, null, null);
+        ItemDTO dto = new ItemDTO(null, "desc", 2, null, null, null, null);
         assertNull(dto.getId());
         assertNull(dto.getWebsite());
 

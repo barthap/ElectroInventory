@@ -51,7 +51,7 @@ public class ItemControllerTests {
 
         when(itemService.findAll(any(Predicate.class), any(Pageable.class))).thenReturn(page);
 
-        mvc.perform(get("/items"))
+        mvc.perform(get("/v1/items"))
                 .andExpect(status().isOk())
                 .andExpect(header().longValue("X-Total-Count", 1))
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -65,7 +65,7 @@ public class ItemControllerTests {
         given(itemService.findById(anyLong()))
                 .willReturn(new Item("1n4007"));
 
-        mvc.perform(get("/items/" + randId()))
+        mvc.perform(get("/v1/items/" + randId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("1n4007"));
     }
@@ -76,8 +76,8 @@ public class ItemControllerTests {
         given(itemService.updateItem(anyLong(), any())).willThrow(new ResourceNotFoundException(""));
         Mockito.doThrow(new ResourceNotFoundException("")).when(itemService).deleteById(anyLong());
 
-        mvc.perform(get("/items/" + randId())).andExpect(status().isNotFound());
-        mvc.perform(put("items/" + randId())
+        mvc.perform(get("/v1/items/" + randId())).andExpect(status().isNotFound());
+        mvc.perform(put("/v1/items/" + randId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(new ItemDTO())))
                 .andExpect(status().isNotFound());
@@ -90,7 +90,7 @@ public class ItemControllerTests {
         ItemDTO dto = ItemDTO.builder().name(item.getName()).build();
         given(itemService.addItem(eq(dto))).willReturn(item);
 
-        mvc.perform(post("/items")
+        mvc.perform(post("/v1/items")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(dto)))
                 .andExpect(status().isCreated())
@@ -103,7 +103,7 @@ public class ItemControllerTests {
         ItemDTO dto = ItemDTO.builder().name(item.getName()).build();
         given(itemService.updateItem(anyLong(), eq(dto))).willReturn(item);
 
-        mvc.perform(put("/items/" + randId())
+        mvc.perform(put("/v1/items/" + randId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(dto)))
                 .andExpect(status().isOk())
@@ -114,7 +114,7 @@ public class ItemControllerTests {
     public void updateInvalidItemTest() throws Exception {
         given(itemService.updateItem(anyLong(), any())).willThrow(new InvalidValueException(""));
 
-        mvc.perform(put("/items/" + randId())
+        mvc.perform(put("/v1/items/" + randId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(new ItemDTO())))
                 .andExpect(status().isBadRequest());
@@ -124,7 +124,7 @@ public class ItemControllerTests {
     public void deleteItemTest() throws Exception {
         Mockito.doNothing().when(itemService).deleteById(anyLong());
 
-        mvc.perform(delete("/items/" + randId()))
+        mvc.perform(delete("/v1/items/" + randId()))
                 .andExpect(status().isNoContent());
     }
 }

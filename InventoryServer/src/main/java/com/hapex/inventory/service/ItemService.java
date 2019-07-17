@@ -3,8 +3,10 @@ package com.hapex.inventory.service;
 import com.hapex.inventory.data.dto.ItemDTO;
 import com.hapex.inventory.data.entity.Category;
 import com.hapex.inventory.data.entity.Item;
+import com.hapex.inventory.data.entity.Location;
 import com.hapex.inventory.data.repository.CategoryRepository;
 import com.hapex.inventory.data.repository.ItemRepository;
+import com.hapex.inventory.data.repository.LocationRepository;
 import com.hapex.inventory.utils.InvalidValueException;
 import com.hapex.inventory.utils.ResourceNotFoundException;
 import com.querydsl.core.types.Predicate;
@@ -27,19 +29,25 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class ItemService {
     private ItemRepository itemRepository;
-    private CategoryRepository categoryRepository;
+    private CategoryService categoryService;
+    private LocationService locationService;
 
     private ModelMapper mapper = new ModelMapper();
     private TypeMap<ItemDTO, Item> itemMapper = mapper.createTypeMap(ItemDTO.class, Item.class)
-            .addMappings((mapper) -> {
+            .addMappings((mapper) -> {  //we skip these mappings, because we set them manually
                 mapper.skip(Item::setId);
+
                 mapper.skip(Item::setCategory);
                 mapper.skip((Item it, Long id) -> it.getCategory().setId(id));
+
+                mapper.skip(Item::setLocation);
+                mapper.skip((Item it, Long id) -> it.getLocation().setId(id));
             });
 
-    public ItemService(ItemRepository itemRepository, CategoryRepository categoryRepository) {
+    public ItemService(ItemRepository itemRepository, CategoryService categoryService, LocationService locationService) {
         this.itemRepository = itemRepository;
-        this.categoryRepository = categoryRepository;
+        this.categoryService = categoryService;
+        this.locationService = locationService;
 
         mapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
     }
@@ -63,14 +71,11 @@ public class ItemService {
             log.debug("Starting mapping item");
             item = itemMapper.map(dto);
         } catch (MappingException e) {
+            //we need to throw our own exception, because it is handled in custom Controller Advice
             throw new InvalidValueException(e.getCause().getMessage());
         }
-        if(dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category with id=" + dto.getCategoryId() + " not found!"));
 
-            item.setCategory(category);
-        }
+        updateRelationships(item, dto);
 
         log.debug("Item mapped. Saving...");
         return itemRepository.save(item);
@@ -81,12 +86,7 @@ public class ItemService {
                 .orElseThrow(() -> throwNotFound(id));
         itemMapper.map(dto, item);
 
-        if(dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Category with id=" + dto.getCategoryId() + " not found!"));
-
-            item.setCategory(category);
-        }
+        updateRelationships(item, dto);
 
         return itemRepository.save(item);
     }
@@ -96,6 +96,14 @@ public class ItemService {
             itemRepository.deleteById(id);
         else
             throw throwNotFound(id);
+    }
+
+    private void updateRelationships(Item item, ItemDTO dto) {
+        if(dto.getCategoryId() != null)
+            item.setCategory(dto.getCategoryId() > 0 ? categoryService.findById(dto.getCategoryId()) : null);
+
+        if(dto.getLocationId() != null)
+            item.setLocation(dto.getLocationId() > 0 ? locationService.findById(dto.getLocationId()) : null);
     }
 
     private RuntimeException throwNotFound(long id) {

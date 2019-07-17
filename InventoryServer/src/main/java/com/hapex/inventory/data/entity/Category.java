@@ -6,11 +6,13 @@ import com.hapex.inventory.utils.InvalidValueException;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @Getter
 @Setter
 @Entity
@@ -64,6 +66,7 @@ public class Category {
 
     @PreRemove
     public void preRemove() {
+        log.debug("Detaching items from category, count: " + items.size());
         items.forEach(item -> item.setCategory(null));
     }
 

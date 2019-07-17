@@ -10,6 +10,7 @@
     "ra-tree-ui-materialui": "^2.9.3",
     "react": "^16.8.6",
     "react-admin": "^2.9.3",
+    "react-dnd": "^9.0.1",
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.1"
   },

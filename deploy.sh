@@ -65,6 +65,8 @@ cp inventory-client/Dockerfile deploy/inventory-client
 let err=err+$?
 cp docker-compose.yml deploy
 let err=err+$?
+cp docker-compose.build.yml deploy/docker-compose.override.yml
+let err=err+$?
 
 if [ $err -ne 0 ]; then
     echo -e "\033[91mAn error occurred during copying files!\033[0m\n"

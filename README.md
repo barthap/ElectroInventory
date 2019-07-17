@@ -229,11 +229,8 @@ Building Docker images just works, and nothing more. It needs some rework to do 
     * `PANEL_USER` and `PANEL_PASS` - Login credentials
     * Others are described below
 
-### If you build images with docker-compose
 Then you also have to look into `docker-compose.build.yml`. Set _EXPOSE_PORT_ there and make sure that ~~generated jar in `/InventoryServer/target`~~ Maven `pom.xml` settings generates Jar which has the same name as specified in compose file (`services.api.build.args.JAR_FILE`).
-
-### If you push images to Docker registry
-Then you have to set `services.*.image` name to be properly pulled from your registry.
+> `docker-compose.build.yml` is automatically renamed to `docker-compose.override.yml` when running build script. This allows Docker to automatically load this file.
 
 ## Make your _client_ service visible!
 * If you are using _nginx proxy_, you should define (uncomment) `VIRTUAL_HOST`, `VIRTUAL_PORT`, `LETSENCRYPT_HOST` and `LETSENCRYPT_EMAIL`. Don't forget to add your service to docker network to make it visible for nginx! Here, project proxy network is called `proxy` internally and `nginx-proxy` externally.
@@ -297,23 +294,12 @@ REACT_APP_API_URL=http://your_client_service_address/api
 
 You also need to specify `REACT_APP_API_USER` and `REACT_APP_API_PASS` - they should suit credentials from `config/application.yml`.
 
-## Configure Docker registry
-> This is only needed if you build Docker images locally and push them to registry
-
-Open `registry.txt` and set your registry details. You do not need to change default image names.
-
 # Deploying to Docker server
-There are two ways of deploying the app to Docker:
 
-* Copy files to target machine and build images there using _docker-compose_
-* **Recommended**: Build images on local machine and push them to your private registry on target machine (or any other registry accessible from target). (_Requires Docker installed on your developer machine_).
-
-## Method #1 - Building images on target machine.
-
-Configure all files as described above, then open terminal/console and run
+Configure all files as described above, then open terminal/console and run build script:
 ```
 Windows:    deploy.cmd
-Linux/Mac:  ./deploy
+Linux/Mac:  ./deploy.sh
 ```
 The script will automatically create directory named **`deploy`** by default. It contains all files needed to be copied to target machine. You can check if all of them are copied:
 * `/config/*`
@@ -328,22 +314,8 @@ The script will automatically create directory named **`deploy`** by default. It
 * `/docker-compose.override.yml`
 
 Additional flags:
-* `--skip-compile` - skips running Maven and building Jar
+* `--skip-compile` - skips running Maven and building Jar file (useful if you do not need to rebuild API package)
 * `--copy-config` - copies configuration files from `private_config` directory instead. Useful if you have custom production config. (details below)
-
-
-## Method #2 - Pushing images to registry
-
-Configure all files as described above, then open terminal/console and run
-```
-Windows:    deploy-registry.cmd
-Linux/Mac:  ./deploy-registry
-```
-The script will automatically build server image using Maven, build client image and create directory named **`deploy`** by default. It contains all files needed to be copied to target machine. It also pushes images if needed.
-Additional flags:
-* `--no-push` - Skips pushing built images to remote registry.
-* `--copy-config` - copies configuration files from `private_config` directory instead. Useful if you have custom production config. (details below)
-
 
 ## Run your containers
 Regardless of selected deployment method, now copy contents of your `deploy` directory to target machine, then run:

@@ -12,8 +12,9 @@ if "%1"=="clean" (
 
 
 set copy_config=TRUE
-set push_remote=FALSE
+set push_remote=TRUE
 set config_dir=private_config
+set registry_file=registry.txt
 
 for %%A in (%*) DO (
     if "%%A"=="--no-push" ( SET push_remote=FALSE )
@@ -27,20 +28,20 @@ echo They are needed to start it
 
 if %copy_config%==TRUE (
     echo [35mCopying custom configuration files from %config_dir%\ ...[0m
-    xcopy %config_dir%\docker-compose.yml deploy /Y/R/H
+    xcopy %config_dir%\docker-compose.yml deploy\ /Y/R/H
     if errorlevel 1 ( goto error )
-    xcopy %config_dir%\.env* deploy\inventory-client /Y/R/H
+    xcopy %config_dir%\application.yml deploy\config\ /Y/R/H
     if errorlevel 1 ( goto error )
-    xcopy %config_dir%\application.yml deploy\config /Y/R/H
-    if errorlevel 1 ( goto error )
-    xcopy %config_dir%\registry.txt /Y/R/H
+    
+    set registry_file=%config_dir%\registry.txt
+
     echo.
     echo Private configuration copied successfully!
 )
 
 echo.
-echo [33mReading configuration from: [36mregistry.txt[0m
-for /f "delims== tokens=1,2" %%G in (registry.txt) do set %%G=%%H
+echo [33mReading configuration from: [36m%registry_file%[0m
+for /f "delims== tokens=1,2" %%G in (%registry_file%) do set %%G=%%H
 
 :: Build API part
 cd InventoryServer

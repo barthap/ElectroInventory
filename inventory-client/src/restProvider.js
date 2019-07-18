@@ -12,6 +12,7 @@ import {
 } from 'react-admin';
 
 import authorizedHttpClient from './utility/httpClient';
+import {uploadPhoto} from "./utility/photoFetcher";
 
 
 const flatten = object => {
@@ -53,6 +54,8 @@ export default (apiUrl, httpClient = authorizedHttpClient) => {
     const API_VERSION = process.env.REACT_APP_API_VERSION;
     apiUrl = apiUrl + '/' + API_VERSION;
 
+    const delayedRequests = [];
+
 
     const convertDataRequestToHTTP = (type, resource, params) => {
         let url = '';
@@ -81,7 +84,6 @@ export default (apiUrl, httpClient = authorizedHttpClient) => {
                 const query = {
                     ids: params.ids.join(',')
                 };
-                console.log("ids", params.ids);
                 url = `${apiUrl}/${resource}?${stringify(query)}`;
                 break;
 
@@ -118,18 +120,35 @@ export default (apiUrl, httpClient = authorizedHttpClient) => {
                     size: perPage
                 };
 
-                console.log(query);
-
                 url = `${apiUrl}/${resource}?${stringify(query)}`;
                 break;
             }
             case UPDATE:
                 if(resource === 'items') {
-                    const cid = params.data.category.id;
+                    const cid = params.data.category != null ? params.data.category.id : null;
                     params.data.categoryId = (cid != null && cid !== "") ? cid : 0;
 
-                    const lid = params.data.location.id;
+                    const lid = params.data.location != null ? params.data.location.id : null;
                     params.data.locationId = (lid != null && lid !== "") ? lid : 0;
+
+                    if(params.data.photo) {
+                        const rawFile = params.data.photo.rawFile;
+                        console.log(rawFile);
+
+                        if(rawFile instanceof File) {
+                            console.log("Uploading photo...");
+
+                            uploadPhoto(params.data.id, rawFile)
+                                .then(response => console.log("Photo upload success", response))
+                                .catch(err => {
+                                    console.error("Photo upload error", err);
+                                    throw new Error("Could not upload photo!");
+                                });
+                        }
+
+                        params.data.photo = undefined;
+
+                    }
                 }
 
                 if(resource === 'categories')
@@ -148,6 +167,22 @@ export default (apiUrl, httpClient = authorizedHttpClient) => {
                 url = `${apiUrl}/${resource}`;
                 options.method = 'POST';
                 options.body = JSON.stringify(params.data);
+
+                if(resource === 'items' && params.data.photo) {
+                    const rawFile = params.data.photo.rawFile;
+
+
+                    if (rawFile instanceof File) {
+                        console.debug("Pushing delayed request...");
+                        //we don't know Item ID yet, so we need to add a delayed request
+                        delayedRequests.push({
+                            type: 'UPLOAD_PHOTO',
+                            data: rawFile
+                        });
+                    }
+
+                    params.data.photo = undefined;
+                }
                 break;
             case DELETE:
                 url = `${apiUrl}/${resource}/${params.id}`;
@@ -185,8 +220,6 @@ export default (apiUrl, httpClient = authorizedHttpClient) => {
                     });
                 }
 
-                console.log(data);
-
                 return {
                     data: data,
                     total: parseInt(
@@ -197,8 +230,22 @@ export default (apiUrl, httpClient = authorizedHttpClient) => {
                         10
                     ),
                 };
-            case CREATE:
-                return { data: { ...params.data, id: json.id } };
+            case CREATE: {
+                if(delayedRequests.length) {
+                    console.log("Parsing delayed requests");
+                   delayedRequests.filter(req => req.type === 'UPLOAD_PHOTO')
+                       .forEach(req => {
+                           uploadPhoto(json.id, req.data)
+                               .then(response => console.debug("Photo upload success", response))
+                               .catch(err => {
+                                   console.error("Photo upload error", err);
+                                   throw new Error("Could not upload photo!");
+                               });
+                        });
+                }
+
+                return {data: {...params.data, id: json.id}};
+            }
             default:
                 return { data: json };
         }

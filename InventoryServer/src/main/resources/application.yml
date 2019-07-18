@@ -45,6 +45,13 @@ spring:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
   jmx:
     enabled: false
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 10MB
+
+storage:
+  root-directory: photos
 
 # some debug logs - sometimes useful
 logging:
@@ -52,9 +59,11 @@ logging:
     web: DEBUG
     sql: DEBUG
     com.hapex.inventory: DEBUG
-  file: app.log
-    max-history: 1
   path: logs
+  file:
+    max-history: 1
+    max-size: 10MB
+
 management:
   endpoints:
     web:

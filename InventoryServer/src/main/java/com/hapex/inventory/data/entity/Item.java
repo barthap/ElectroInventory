@@ -1,5 +1,6 @@
 package com.hapex.inventory.data.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hapex.inventory.utils.InvalidValueException;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.*;
@@ -23,6 +24,10 @@ public class Item {
 
     private String description;
     private String website;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Photo photo;
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
@@ -53,5 +58,26 @@ public class Item {
 
     public Long getId() {
         return id;
+    }
+
+    public void addPhoto(Photo photo) {
+        this.photo = photo;
+        if(photo != null)
+            photo.setItem(this);
+    }
+    public void removePhoto() {
+        if(photo != null)
+            photo.setItem(null);
+
+        photo = null;
+    }
+
+    public void setPhoto(Photo photo) {
+        removePhoto();      //remove old photo if exists
+        addPhoto(photo);    //add new photo
+    }
+
+    public boolean hasPhoto() {
+        return photo != null && getPhoto().isValid();
     }
 }

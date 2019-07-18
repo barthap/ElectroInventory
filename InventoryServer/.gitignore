@@ -1,6 +1,9 @@
 target/
 
 app.log
+spring.log
+logs/
+photos/
 
 # User-specific stuff
 .idea/**/workspace.xml

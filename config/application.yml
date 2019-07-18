@@ -15,6 +15,9 @@ security:
 client:
   origin: https://your.domain.tld
 
+storage:
+  root-directory: photos
+
 spring:
   application:
     name: inventory-api

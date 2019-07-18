@@ -2,10 +2,13 @@ import React from 'react';
 import { List, Datagrid, TextField, UrlField, Edit, SimpleForm, Create,
     DisabledInput, TextInput, LongTextInput, NumberInput, NumberField,
     EditButton, DeleteButton, Show, SimpleShowLayout, ReferenceField, ReferenceInput,
-    Filter, SelectInput, Toolbar, SaveButton, CloneButton, FunctionField} from 'react-admin';
+    Filter, SelectInput, Toolbar, SaveButton, CloneButton, FunctionField,
+    ImageInput } from 'react-admin';
 import MyUrlField from "../ui/MyUrlField";
 
 import get from 'lodash/get';
+import PhotoPreview from "../ui/PhotoPreview";
+import DecoratedImageInput from "../ui/DecoratedImageInput";
 const BoldTextField = ({ source, record = {} }) => <span><b>{get(record, source)}</b></span>;
 
 const ItemTitle = ({record}) => {
@@ -23,13 +26,13 @@ const ItemFilter = props => (
 
 const DESC_LENGTH = 50;
 const ShortDesc = record => {
+    if(record.description == null)
+        return "";
     if(record.description.length < DESC_LENGTH)
         return record.description;
     else
         return record.description.substr(0,DESC_LENGTH) + "...";
 };
-
-
 
 const ItemExpand = props => (
     <Show {...props} title="">
@@ -41,6 +44,7 @@ const ItemExpand = props => (
             <MyUrlField source="website"/>
             <NumberField source="quantity"/>
             <TextField source="id"/>
+            <PhotoPreview/>
         </SimpleShowLayout>
     </Show>
 );
@@ -108,6 +112,9 @@ export const ItemCreate = props => (
             <NumberInput source="quantity"/>
             <TextInput source="website"/>
             <LongTextInput source="description" />
+            <ImageInput source="photo" label="Photo" accept="image/*">
+                <PhotoPreview source="src"/>
+            </ImageInput>
         </SimpleForm>
     </Create>
 );
@@ -123,6 +130,9 @@ export const ItemEdit = props => (
             <NumberInput source="quantity"/>
             <TextInput source="website"/>
             <LongTextInput source="description" />
+            <ImageInput source="photo" label="Photo" accept="image/*">
+                <PhotoPreview source="src"/>
+            </ImageInput>
         </SimpleForm>
     </Edit>
 );

@@ -1,12 +1,10 @@
 package com.hapex.inventory.service;
 
 import com.hapex.inventory.data.dto.ItemDTO;
-import com.hapex.inventory.data.entity.Category;
 import com.hapex.inventory.data.entity.Item;
-import com.hapex.inventory.data.entity.Location;
-import com.hapex.inventory.data.repository.CategoryRepository;
+import com.hapex.inventory.data.entity.Photo;
 import com.hapex.inventory.data.repository.ItemRepository;
-import com.hapex.inventory.data.repository.LocationRepository;
+import com.hapex.inventory.service.storage.StorageService;
 import com.hapex.inventory.utils.InvalidValueException;
 import com.hapex.inventory.utils.ResourceNotFoundException;
 import com.querydsl.core.types.Predicate;
@@ -15,12 +13,16 @@ import org.modelmapper.Conditions;
 import org.modelmapper.MappingException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -31,6 +33,7 @@ public class ItemService {
     private ItemRepository itemRepository;
     private CategoryService categoryService;
     private LocationService locationService;
+    private StorageService storageService;
 
     private ModelMapper mapper = new ModelMapper();
     private TypeMap<ItemDTO, Item> itemMapper = mapper.createTypeMap(ItemDTO.class, Item.class)
@@ -44,10 +47,14 @@ public class ItemService {
                 mapper.skip((Item it, Long id) -> it.getLocation().setId(id));
             });
 
-    public ItemService(ItemRepository itemRepository, CategoryService categoryService, LocationService locationService) {
+    public ItemService(ItemRepository itemRepository,
+                       CategoryService categoryService,
+                       LocationService locationService,
+                       StorageService storageService) {
         this.itemRepository = itemRepository;
         this.categoryService = categoryService;
         this.locationService = locationService;
+        this.storageService = storageService;
 
         mapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
     }
@@ -92,10 +99,11 @@ public class ItemService {
     }
 
     public void deleteById(long id) {
-        if(itemRepository.existsById(id))
-            itemRepository.deleteById(id);
-        else
-            throw throwNotFound(id);
+        Item item = findById(id);
+        if(item.hasPhoto())
+            deletePhoto(id);
+
+        itemRepository.delete(item);
     }
 
     private void updateRelationships(Item item, ItemDTO dto) {
@@ -108,5 +116,67 @@ public class ItemService {
 
     private RuntimeException throwNotFound(long id) {
         return new ResourceNotFoundException("Item with id=" + id + " not found!");
+    }
+
+    private RuntimeException photoNotFound(long id) {
+        return new ResourceNotFoundException("Item with id=" + id + " has no photo!");
+    }
+
+    public Optional<Resource> getPhoto(long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> throwNotFound(itemId));
+
+        if(item.getPhoto() == null || !item.getPhoto().isValid())
+            return Optional.empty();
+
+        return Optional.of(storageService.loadAsResource(item.getPhoto().getFilename()));
+    }
+
+
+    /**
+     * Creates or updates item photo
+     * @param itemId item id
+     * @param file file data
+     * @return is photo created?
+     */
+    public boolean updatePhoto(long itemId, MultipartFile file) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> throwNotFound(itemId));
+
+        boolean isCreated = true;
+
+        if(item.hasPhoto()) {
+            if(!storageService.delete(item.getPhoto().getFilename()))
+                throw new RuntimeException("Could not remove file: " + item.getPhoto().getFilename());
+
+            isCreated = false;
+        }
+
+        final String filename = "photo_" + itemId + Objects.requireNonNull(file.getOriginalFilename())
+                .substring(file.getOriginalFilename().lastIndexOf('.'));
+
+        if(!storageService.store(file, filename))
+            throw new RuntimeException("Could not save photo for item id=" + itemId);
+
+        if(isCreated)
+            item.addPhoto(new Photo(filename));
+        else
+            item.getPhoto().setFilename(filename);
+
+        return isCreated;
+    }
+
+    public void deletePhoto(long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> throwNotFound(itemId));
+
+        if(!item.hasPhoto())
+            throw photoNotFound(itemId);
+
+        if(storageService.delete(item.getPhoto().getFilename()))
+            item.removePhoto();
+        else
+            throw new RuntimeException("Could not remove file: " + item.getPhoto().getFilename());
+
     }
 }

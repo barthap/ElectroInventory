@@ -13,15 +13,24 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.FileUrlResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static com.hapex.inventory.test.utils.TestUtils.asJsonString;
 import static com.hapex.inventory.test.utils.TestUtils.randId;
@@ -126,5 +135,58 @@ public class ItemControllerTests {
 
         mvc.perform(delete("/v1/items/" + randId()))
                 .andExpect(status().isNoContent());
+    }
+
+    // Photo tests
+
+    @Test
+    public void getPhotoTest() throws Exception {
+        //TODO: not implemented
+        given(itemService.getPhoto(anyLong())).willReturn(Optional.of(new InputStreamResource(mockFile().getInputStream())));
+
+        mvc.perform(get("/v1/items/" + randId()+ "/photo"))
+                .andExpect(status().isOk())
+                .andExpect(header().exists(HttpHeaders.CONTENT_DISPOSITION));
+    }
+
+    @Test
+    public void getUnexistingPhotoTest() throws Exception {
+        given(itemService.getPhoto(anyLong())).willReturn(Optional.empty());
+
+        mvc.perform(get("/v1/items/" + randId()+ "/photo"))
+                .andExpect(status().isNoContent())
+                .andExpect(header().doesNotExist(HttpHeaders.CONTENT_DISPOSITION));
+    }
+
+    @Test
+    public void postPhotoTest() throws Exception {
+        given(itemService.updatePhoto(anyLong(), any())).willReturn(true);
+
+        mvc.perform(MockMvcRequestBuilders.multipart("/v1/items/" + randId() + "/photo")
+                .file(mockFile()))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION));
+    }
+
+    @Test
+    public void replacePhotoTest() throws Exception {
+        given(itemService.updatePhoto(anyLong(), any())).willReturn(false);
+
+        mvc.perform(MockMvcRequestBuilders.multipart("/v1/items/" + randId() + "/photo")
+                .file(mockFile()))
+                .andExpect(status().isOk())
+                .andExpect(header().exists(HttpHeaders.LOCATION));
+    }
+
+    @Test
+    public void deletePhotoTest() throws Exception {
+        Mockito.doNothing().when(itemService).deletePhoto(anyLong());
+
+        mvc.perform(delete("/v1/items/" + randId() + "/photo"))
+                .andExpect(status().isNoContent());
+    }
+
+    private MockMultipartFile mockFile() {
+        return new MockMultipartFile("file", "filename.jpg", MediaType.IMAGE_JPEG_VALUE, "aaa".getBytes());
     }
 }

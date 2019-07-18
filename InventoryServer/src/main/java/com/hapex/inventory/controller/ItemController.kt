@@ -10,13 +10,17 @@ import com.hapex.inventory.service.ItemService
 import com.querydsl.core.types.Predicate
 import com.querydsl.core.types.dsl.BooleanExpression
 import io.swagger.annotations.*
+import org.springframework.core.io.Resource
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.querydsl.binding.QuerydslPredicate
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder
 import org.springframework.web.util.UriComponentsBuilder
 import springfox.documentation.annotations.ApiIgnore
@@ -84,4 +88,45 @@ class ItemController(private val itemService: ItemService) {
     @ApiOperation(value = "Delete item with specified ID")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteItem(@PathVariable id: Long) = itemService.deleteById(id)
+
+    @GetMapping("/{id}/photo", produces = [MediaType.IMAGE_JPEG_VALUE])
+    fun getPhoto(@PathVariable id: Long): ResponseEntity<Resource> {
+        val photo = itemService.getPhoto(id)
+
+        val status = when(photo.isPresent) {
+            true -> HttpStatus.OK
+            false -> HttpStatus.NO_CONTENT
+        }
+
+        val headers = HttpHeaders()
+        if(photo.isPresent)
+            headers.set(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=${photo.get().filename}" )
+
+        return ResponseEntity
+                .status(status)
+                .headers(headers)
+                .body(photo.orElse(null))
+    }
+
+    @PostMapping("/{id}/photo", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    fun uploadPhoto(@PathVariable id: Long,
+                    @RequestParam("file") file: MultipartFile): ResponseEntity<Unit> {
+
+        val isCreated = itemService.updatePhoto(id, file)
+        val headers = HttpHeaders()
+        headers.location = MvcUriComponentsBuilder.fromMethodName(
+                ItemController::class.java,
+                "getPhoto", id)
+                .build().toUri()
+
+        return ResponseEntity.status(when(isCreated) {
+            true -> HttpStatus.CREATED
+            false -> HttpStatus.OK
+        }).headers(headers).build()
+    }
+
+    @DeleteMapping("/{id}/photo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deletePhoto(@PathVariable id: Long) = itemService.deletePhoto(id)
+
 }

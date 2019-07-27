@@ -6,6 +6,10 @@ import { List, Datagrid, TextField, UrlField, Edit, SimpleForm, Create,
 import MyUrlField from "../ui/MyUrlField";
 
 import get from 'lodash/get';
+import GoogleField from "../ui/GoogleField";
+import {FilteringReferenceField} from "../ui/FilteringReferenceField";
+import CancelButton from "../ui/CancelButton";
+import {FieldGroup} from "../ui/FieldGroup";
 const BoldTextField = ({ source, record = {} }) => <span><b>{get(record, source)}</b></span>;
 
 const ItemTitle = ({record}) => {
@@ -35,7 +39,11 @@ const ItemExpand = props => (
     <Show {...props} title="">
         <SimpleShowLayout>
             <TextField source="description"/>
-            <ReferenceField source="location.id" reference="locations" label="Location" linkType="show" allowEmpty>
+            <ReferenceField source="location.id"
+                            reference="locations"
+                            label="Location"
+                            linkType="show"
+                            allowEmpty>
                 <TextField source="fullName"/>
             </ReferenceField>
             <MyUrlField source="website"/>
@@ -50,16 +58,25 @@ export const ItemList = props => (
         <Datagrid expand={<ItemExpand/>} rowClick="expand">
 
             <BoldTextField source="name"/>
-            <ReferenceField source="category.id" reference="categories" label="Category" linkType="show" allowEmpty>
-                <TextField source="name"/>
-            </ReferenceField>
+            <FilteringReferenceField source="category.id"
+                                     reference="categories"
+                                     label="Category"
+                                     linkType="show"
+                                     allowEmpty/>
+
             <FunctionField label="Description" render={ShortDesc} />
-            <ReferenceField source="location.id" reference="locations" label="Location" linkType="show" allowEmpty>
-                <TextField source="name"/>
-            </ReferenceField>
-            <CloneButton/>
-            <EditButton/>
-            <DeleteButton/>
+            <GoogleField/>
+            <FilteringReferenceField source="location.id"
+                                     reference="locations"
+                                     label="Location"
+                                     linkType="show"
+                                     allowEmpty
+            />
+            <FieldGroup>
+                <CloneButton/>
+                <EditButton/>
+                <DeleteButton/>
+            </FieldGroup>
         </Datagrid>
     </List>
 );
@@ -95,6 +112,7 @@ const ItemCreateToolbar = props => (
             submitOnEnter={false}
             variant="flat"
         />
+        <CancelButton />
     </Toolbar>
 );
 
@@ -103,6 +121,9 @@ export const ItemCreate = props => (
         <SimpleForm toolbar={<ItemCreateToolbar/>} redirect="list">
             <TextInput source="name" />
             <ReferenceInput source="categoryId" reference="categories" allowEmpty>
+                <SelectInput optionText="name" />
+            </ReferenceInput>
+            <ReferenceInput source="locationId" reference="locations" allowEmpty>
                 <SelectInput optionText="name" />
             </ReferenceInput>
             <NumberInput source="quantity"/>
@@ -118,6 +139,9 @@ export const ItemEdit = props => (
             <DisabledInput source="id" />
             <TextInput source="name" />
             <ReferenceInput source="category.id" reference="categories" label="Category" allowEmpty>
+                <SelectInput optionText="name" />
+            </ReferenceInput>
+            <ReferenceInput source="location.id" reference="locations" label="Location" allowEmpty>
                 <SelectInput optionText="name" />
             </ReferenceInput>
             <NumberInput source="quantity"/>

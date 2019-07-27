@@ -132,10 +132,8 @@ export default (apiUrl, httpClient = authorizedHttpClient) => {
                     params.data.locationId = (lid != null && lid !== "") ? lid : 0;
                 }
 
-                if(resource === 'categories')
+                if(resource === 'categories' || resource === 'locations')
                     params.data.parentId = params.data.parent.id;
-                if(resource === 'locations')
-                    params.data.parentId = params.data.parent_id;
 
                 if(params.data.parentId === null)
                     params.data.parentId = 0;

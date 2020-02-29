@@ -13,6 +13,7 @@ because I didn't know I already have them somewhere. Having their location and s
 * Manage items (components) - each has _category_, _name_, _quantity_, _description_ and _website_.
 * Manage categories and subcategories.
 * Simple and friendly UI.
+* **New awesome features are work in progress.** See [Roadmap](#roadmap). More info coming soon...
 
 ![Demo screenshot](/demo1.PNG)
 
@@ -350,5 +351,10 @@ will be loaded from this directory instead of the original ones.
 ## Roadmap
 * ~~Add location management~~ Done
 * ~~Categories displayed as a tree~~ Done
+* **Create Mobile and PC client app** - apps would have device-specific features. For instance,
+Mobile app would be used for scanning labels / taking photos, and PC app for management and printing labels.
+* **Add label printing + QR Code support** - Integrate PC soft with label printer, and add ability to scan them
+in mobile app.
+* Add live-sync between mobile and PC app - using Apple Bonjour or other service discovery
 * Unify configuration
 * Improve build and deployment scripts
